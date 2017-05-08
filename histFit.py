@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import normaltest
 import matplotlib.pylab as plt
 
-flist = sorted(glob.glob("gClst_0-0-0.70-*-25000.dat"))
+flist = sorted(glob.glob("../v3/gClst_0-0-0.70-*-25000.dat"))
 fig=plt.figure(figsize=(12,10))
 count = 1
 for fl in flist:
