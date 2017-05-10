@@ -2,8 +2,10 @@
 import numpy as np
 import glob
 from scipy.integrate import simps
- 
-flist = sorted(glob.glob("../v3/gRDF_0-0-1.60-*-25000.dat"),reverse=True)
+import matplotlib.pylab as plt
+fig = plt.figure(figsize=(10,12))
+count = 1 
+flist = sorted(glob.glob("../v3/gRDF_0-0-0.70-*-25000.dat"),reverse=True)
 for fl in flist:
 	f = open(fl,"r")
 	dens = fl[20:24]
@@ -21,12 +23,25 @@ for fl in flist:
 	f.close()
 	rA = np.asarray(r)
 	grA = np.asarray(gr)
-	rMinInd = np.where((rA > 1.3)&(rA < 2))
-	#print rMin
-	minGr = grA[rMinInd].min()
-	minRInd = np.where(grA == minGr)
-	ind1 = np.where(rA < rA[minRInd])
-	rAmin = float(rA[minRInd])
-	grDenA = float(dens)*grA[ind1]
-	i1 = 4*np.pi*simps(grDenA,rA[ind1])
-	print temp,dens,rAmin,i1 
+	rMinInd = np.where((rA > 1.3)&(rA < 2.2))
+	#rMinInd = np.where((rA > 1.1)&(rA < 1.5))
+	minGR = grA[rMinInd].min()
+	#minGR = grA[int(rMinInd)]
+	minGRi = int(np.where(grA == minGR)[0])
+	rAmin = float(rA[minGRi])
+	rLow = rA[0:minGRi]
+	r2 = np.multiply(rLow,rLow)
+	grDenA = np.multiply(grA[0:minGRi],r2)
+	i1 = 4*np.pi*float(dens)*simps(grDenA,rA[0:minGRi])
+	print temp,dens,rAmin,minGR,i1 
+	ax = fig.add_subplot(4,2,count)
+	ax.set_title(r"T={0} Dens={1} N_c={2:.4g}".format(temp,dens,i1))
+	ax.set_xlabel("r")
+	ax.set_ylabel("g(r)")
+	ax.set_xlim([0,4])
+	ax.plot(rA,grA,rAmin,minGR,"r*",rA,rA/rA,"k--")
+	ax.fill_between(rA[0:minGRi],grA[0:minGRi])
+	count = count + 1
+fig.tight_layout()
+plt.savefig("{0}-Coordination-Min.png".format(temp))
+#plt.show() 

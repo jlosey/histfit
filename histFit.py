@@ -5,7 +5,7 @@ from scipy.stats import normaltest
 from scipy.integrate import quad 
 import matplotlib.pylab as plt
 
-flist = sorted(glob.glob("../v3/gClst_0-0-*-0.30-25000.dat"),reverse=True)
+flist = sorted(glob.glob("../v3/gClst_0-0-*-0.90-25000.dat"),reverse=True)
 fig=plt.figure(1,figsize=(12,10))
 areaList = []
 count = 1
@@ -53,7 +53,9 @@ for fl in flist:
 	fitC2 = lambda t : maxDataC2*np.exp(-(t-avgC2)**2/(2*widthC2**2))
 	area,aerr = quad(fitC,0,20)
 	area2,a2err = quad(fitC2,0,20)
-	areaList.append((temp,dens,area,aerr,area2,a2err,area/area2))
+	cSum = sum(dataC)
+	c2Sum = sum(dataC2)
+	areaList.append((temp,dens,area,aerr,area2,a2err,area/area2,cSum,c2Sum))
 	#print("Temp = {0} Rho = {1}".format(temp, dens))
 	#print("Area = {0}, area2 = {1}, simA = {2}".format(sum(fitC(X)),c2A,sum(dataC[1:])))
 	#test = normaltest(data)
@@ -77,7 +79,11 @@ for fl in flist:
 
 areaList = np.asarray(areaList)
 fig = plt.figure(2)
-plt.plot(areaList[:,0],areaList[:,6])
+#plt.plot(areaList[:,0],areaList[:,6])
+plt.plot(areaList[:,0],areaList[:,7])
+plt.plot(areaList[:,0],areaList[:,8])
+plt.xlabel("T")
+plt.ylabel("Area")
 #plt.ylim([0,0.2])
 plt.show()
 #plt.savefig("%s-nearN.png"%temp)
