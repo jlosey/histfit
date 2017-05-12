@@ -80,7 +80,7 @@ for fl in flist:
 areaList = np.asarray(areaList)
 fig = plt.figure(2)
 #plt.plot(areaList[:,0],areaList[:,6])
-plt.plot(areaList[:,0],areaList[:,7])
+#plt.plot(areaList[:,0],areaList[:,7])
 plt.plot(areaList[:,0],areaList[:,8])
 plt.xlabel("T")
 plt.ylabel("Area")
