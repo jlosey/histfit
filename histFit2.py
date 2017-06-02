@@ -4,9 +4,11 @@ import numpy as np
 from scipy.stats import normaltest
 from scipy.integrate import quad 
 import matplotlib.pylab as plt
+import sys
 
-fig=plt.figure(1,figsize=(10,6))
+fig=plt.figure(1,figsize=(7,4))
 count = 1
+threshold = int(sys.argv[1]) 
 dlist = ["0.20","0.316","0.40","0.60"]
 #dlist = ["0.05", "0.10","0.15","0.20","0.25"]
 for d in dlist:
@@ -49,7 +51,8 @@ for d in dlist:
 		#Cluster of neighbors with > 4 Stillinger nieghbors
 		dataC = np.asarray(pClst)
 		dataC2 = dataC[1:]
-		dataCL = dataC[4:]
+		dataSL = dataS[threshold:]
+		dataCL = dataC[threshold:]
 		maxDataC = dataC.max()
 		maxDataC2 = dataC2.max()
 		avgC = np.sum(dataC*nAr)/np.sum(dataC)
@@ -65,18 +68,27 @@ for d in dlist:
 		#areaL,aLerr = quad(fitCL,0,20)
 		cSum = sum(dataC)
 		c2Sum = sum(dataC2)
+		sLSum = sum(dataSL)
 		cLSum = sum(dataCL)
-		areaList.append((temp,dens,area,aerr,area2,a2err,area2/area,cSum,c2Sum,cLSum))
+		areaList.append((temp,dens,sLSum,cLSum))
 
 	areaList = np.asarray(areaList)
 	ind = np.lexsort((areaList[:,0],areaList[:,1]))
 	areaList = areaList[ind]
 	#plt.plot(areaList[:,0],areaList[:,6])
-	plt.plot(areaList[:,0],areaList[:,8], '.-', label=">1 {0}".format(dens))
-	plt.plot(areaList[:,0],areaList[:,9], '^-', label=">4 {0}".format(dens))
+	ax = fig.add_subplot(1,2,1)
+	ax.set_xlabel("T")
+	ax.set_ylabel("P[n > {0}]".format(threshold))
+	ax.set_ylim([0,1])
+	plt.plot(areaList[:,0],areaList[:,2], '.-', label="{0}".format(dens))
+	ax = fig.add_subplot(1,2,2)
+	ax.set_xlabel("T")
+	ax.set_ylabel("P[n > {0}]".format(threshold))
+	ax.set_ylim([0,1])
+	plt.plot(areaList[:,0],areaList[:,3], '^-', label="{0}".format(dens))
 print areaList
-plt.xlabel("T")
-plt.ylabel("Cumulative probability")
-plt.legend(loc="right")
+#fig.xlabel("T")
+#fig.ylabel("P[n > {0}]")
+plt.legend(loc="upper right")
 plt.show()
 #plt.savefig("AreaRatio.png")
