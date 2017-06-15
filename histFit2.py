@@ -6,13 +6,16 @@ from scipy.integrate import quad
 import matplotlib.pylab as plt
 import sys
 
-fig=plt.figure(1,figsize=(7,4))
+fig=plt.figure(1,figsize=(10,6))
 count = 1
-threshold = int(sys.argv[1]) 
-dlist = ["0.20","0.316","0.40","0.60"]
+if len(sys.argv) > 1:
+	threshold = int(sys.argv[1]) 
+else:
+	threshold = 4
+dlist = ["0.20","0.25","0.316","0.40","0.45","0.50","0.60","0.70"]
 #dlist = ["0.05", "0.10","0.15","0.20","0.25"]
 for d in dlist:
-	flist = sorted(glob.glob("../v4/gClst_0-0-*-{0}-*.dat".format(d)))
+	flist = sorted(glob.glob("../v4/gClst_0-0-*-{0}-500000.dat".format(d)))
 	#flist = sorted(glob.glob("../v4/gClst_5-0-*-{0}-250000.dat".format(d)))
 	areaList = []
 	for fl in flist:
@@ -76,17 +79,23 @@ for d in dlist:
 	ind = np.lexsort((areaList[:,0],areaList[:,1]))
 	areaList = areaList[ind]
 	#plt.plot(areaList[:,0],areaList[:,6])
-	ax = fig.add_subplot(1,2,1)
+	#ax = fig.add_subplot(1,2,1)
+	#ax.set_xlabel("T")
+	#ax.set_ylabel("P[n > {0}]".format(threshold))
+	#ax.set_ylim([0,1])
+	#plt.plot(areaList[:,0],areaList[:,2], '.-', label="{0}".format(dens))
+	ax = fig.add_subplot(1,1,1)
 	ax.set_xlabel("T")
 	ax.set_ylabel("P[n > {0}]".format(threshold))
 	ax.set_ylim([0,1])
-	plt.plot(areaList[:,0],areaList[:,2], '.-', label="{0}".format(dens))
-	ax = fig.add_subplot(1,2,2)
-	ax.set_xlabel("T")
-	ax.set_ylabel("P[n > {0}]".format(threshold))
-	ax.set_ylim([0,1])
-	plt.plot(areaList[:,0],areaList[:,3], '^-', label="{0}".format(dens))
-print areaList
+	ax.plot(areaList[:,0],areaList[:,3], 's-', label="{0}".format(dens))
+	ax.plot((1.312,1.312),(0,1),'k--',linewidth=0.7)
+	print areaList
+xt = ax.get_xticks()
+xt = np.append(xt,1.312)
+xtl = xt.tolist()
+xtl[-1] = "$T_c$"
+plt.xticks(xt,xtl)
 #fig.xlabel("T")
 #fig.ylabel("P[n > {0}]")
 plt.legend(loc="upper right")

@@ -6,10 +6,13 @@ from scipy.integrate import quad
 import matplotlib.pylab as plt
 import sys
 
-fig=plt.figure(1,figsize=(7.2,4))
+fig=plt.figure(1,figsize=(10,6))
 count = 1
-threshold = int(sys.argv[1]) 
-tlist = ["1.00","1.3365","2.00","4.00","6.00","8.00","10.00"]
+if len(sys.argv) > 1:
+	threshold = int(sys.argv[1]) 
+else:
+	threshold = 4
+tlist = ["1.00","1.312","1.3365","2.00","4.00","6.00","8.00","10.00","12.00"]
 #dlist = ["0.25","0.27","0.29","0.32","0.32","0.34","0.37","0.40"]
 #dlist = ["0.20","0.32","0.40","0.60"]
 #dlist = ["0.05", "0.10","0.15","0.20","0.25"]
@@ -98,13 +101,13 @@ for t in tlist:
 	areaList = np.asarray(areaList)
 	ind = np.lexsort((areaList[:,0],areaList[:,1]))
 	areaList = areaList[ind]
-	print areaList
-	ax = fig.add_subplot(1,2,1)
-	ax.plot(areaList[:,1],areaList[:,2], '.-', label="{0}".format(temp))
-	ax.set_ylim([0,1])
-	ax.set_xlabel("Density")
-	ax.set_ylabel("P[n>{0}]".format(threshold))
-	ax = fig.add_subplot(1,2,2)
+	#print areaList
+	#ax = fig.add_subplot(1,2,1)
+	#ax.plot(areaList[:,1],areaList[:,2], '.-', label="{0}".format(temp))
+	#ax.set_ylim([0,1])
+	#ax.set_xlabel("Density")
+	#ax.set_ylabel("P[n>{0}]".format(threshold))
+	ax = fig.add_subplot(1,1,1)
 	ax.plot(areaList[:,1],areaList[:,3], '^-', label="{0}".format(temp))
 	ax.set_ylim([0,1])
 	ax.set_xlabel("Density")
@@ -117,6 +120,6 @@ for t in tlist:
 #ax2.set_xlim((0,6))
 #ax2.set_ylim((0,1.02))
 #ax1.legend(loc="upper right")
-plt.legend(loc="right")
+plt.legend()
 plt.show()
 #plt.savefig("AreaRatio.png")
