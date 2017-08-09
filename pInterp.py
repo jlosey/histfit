@@ -11,7 +11,7 @@ if len(sys.argv) > 1:
 else:
 	threshold = 4
 dataL = []
-dlist = ["0.20","0.25","0.30","0.316","0.35","0.40","0.45","0.50","0.55","0.60","0.65","0.70","0.75"]
+dlist = ["0.05","0.10","0.15","0.20","0.25","0.30","0.316","0.35","0.40","0.45","0.50","0.55","0.60","0.65","0.70","0.75"]
 for d in dlist:
 	flist = sorted(glob.glob("../v5/gClst_0-0-*-{0}-500000.dat".format(d)))
 	#Loop through files in flist
@@ -42,18 +42,19 @@ for d in dlist:
 		cSum = dataC.sum()
 		sLSum = dataSL.sum()
 		cLSum = dataCL.sum()
-		dataL.append((temp,dens,sLSum,cLSum,cSum))
+		dataL.append((dens,temp,sLSum,cLSum,cSum))
 #Convert data list into numpy array
 dataL = np.asarray(dataL)
 ind = np.lexsort((dataL[:,0],dataL[:,1]))
 dataL = dataL[ind]
 points = (dataL[:,0],dataL[:,1])
 #print dataL
-dG = np.linspace(0.2,0.7,225)
-tG = np.linspace(0.5,4.0,225)
-T,D = np.meshgrid(tG,dG)
+dG = np.linspace(0.05,0.7,100)
+tG = np.linspace(0.5,4.0,100)
+D,T = np.meshgrid(dG,tG)
 #Interpolate data
-gClst = griddata(points,dataL[:,3],(T,D),method="cubic")
+sClst = griddata(points,dataL[:,2],(D,T),method="linear")
+gClst = griddata(points,dataL[:,3],(D,T),method="linear")
 #iClst = interp2d(dataL[:,0],dataL[:,1],dataL[:,3],kind="linear")
 #I = iClst(tG,dG)
 #print I
@@ -71,12 +72,21 @@ for line in ljf.readlines():
 	rvLJ.append(float(lis[1]))
 	rlLJ.append(float(lis[2]))
 ljf.close()
-#print tLJ,rvLJ
-cLevels = [0.2,0.4,0.6,0.8]
-CS = plt.contour(D,T,gClst,levels=cLevels)
+cLevels = [0.1,0.2,0.4,0.6,0.8,0.95]
+plt.figure(1,figsize=(10.5,6.5))
+plt.subplot(122)
+CS1 = plt.contour(D,T,gClst,levels=cLevels)
 plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
-plt.clabel(CS,inline=1,fmt="%1.2f")
+plt.clabel(CS1,inline=1,fmt="%1.2f")
+plt.title("Dense Neighbours\nP[N>{0}], Interpolated".format(threshold))
 plt.ylabel("T*")
-plt.xlabel("Density*")
-plt.title("P[N>4], Interpolated")
+plt.xlabel(r'$\rho$*')
+plt.subplot(121)
+CS2 = plt.contour(D,T,sClst,levels=cLevels)
+plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
+plt.clabel(CS2,inline=1,fmt="%1.2f")
+plt.title("Stillinger\nP[N>{0}], Interpolated".format(threshold))
+plt.ylabel("T*")
+plt.xlabel(r'$\rho$*')
+plt.tight_layout()
 plt.show()
