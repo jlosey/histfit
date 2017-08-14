@@ -6,9 +6,7 @@ from scipy.integrate import quad
 import matplotlib.pylab as plt
 import sys
 
-fig1=plt.figure(1,figsize=(10,6))
-fig2=plt.figure(2,figsize=(10,6))
-fig3=plt.figure(3,figsize=(10,6))
+fig=plt.figure(1,figsize=(10,6))
 count = 1
 if len(sys.argv) > 1:
 	threshold = int(sys.argv[1]) 
@@ -53,6 +51,7 @@ for t,i in zip(tlist,dindex):
 
 		#Cluster of neighbors with > 4 Stillinger nieghbors
 		dataC = np.asarray(pClst)
+		dataC2 = dataC[1:]
 		dataSL = dataS[threshold:]
 		dataCL = dataC[threshold:]
 		indices = np.arange(dataC.size)
@@ -116,4 +115,4 @@ fig1.show()
 #fig2.show()
 #fig3.show()
 #raw_input()
-fig1.savefig("IsothermNProb.png")
+#fig1.savefig("IsothermNProb.png")

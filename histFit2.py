@@ -76,8 +76,7 @@ for d,i in zip(dlist,tindex):
 	ax1.set_xlabel("P[n > {0}]".format(threshold))
 	ax1.set_xlim([0,1])
 	ax1.plot(areaList[:,3],areaList[:,0], '+-', label="{0}".format(dens))
-	#for l,pti in zip(denslabel,pt):
-	#	plt.annotate(l,xy=(),xytext=(0,20),arrowprops=dict(arrowstyle='->')
+	
 	#ax1.legend(areaList[0,1])
 	#print areaList
 	#ax2 = fig2.add_subplot(1,1,1)
