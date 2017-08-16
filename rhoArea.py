@@ -6,7 +6,7 @@ from scipy.integrate import quad
 import matplotlib.pylab as plt
 import sys
 
-fig=plt.figure(1,figsize=(10,6))
+fig1=plt.figure(1,figsize=(10,6))
 count = 1
 if len(sys.argv) > 1:
 	threshold = int(sys.argv[1]) 
@@ -87,18 +87,6 @@ for t,i in zip(tlist,dindex):
 		bbox=dict(boxstyle='round,pad=0.5', fc="white",alpha=0.5),
 		arrowprops=dict(arrowstyle = '->', connectionstyle='arc3,rad=0')
 	)
-	ax2 = fig2.add_subplot(1,1,1)
-	ax2.plot(areaList[:,1],areaList[:,4], '+-', label="{0}".format(temp))
-	#ax2.legend(areaList[:,1])
-	ax2.set_xlim([0.2,1.0])
-	ax2.set_xlabel("Density")
-	ax2.set_ylabel("Average Neighbour, <N>".format(threshold))
-	ax3 = fig3.add_subplot(1,1,1)
-	ax3.plot(areaList[:,1],areaList[:,5], '+-', label="{0}".format(temp))
-	ax3.set_xlim([0.2,1.0])
-	#ax3.legend(areaList[:,1])
-	ax3.set_xlabel("Density")
-	ax3.set_ylabel("Mode Neighbour, Max(N)".format(threshold))
 #plt.xlabel("Density")
 #ax1.set_ylabel("Area Ratio")
 #ax2.set_xlabel("T")
@@ -108,11 +96,6 @@ ax1.plot((0,1.1),(0.316,0.316),"k--")
 #ax2.set_ylim((0,1.02))
 #ax1.legend(loc="upper right")
 #plt.legend(loc="best")
-#ax1.legend(tlabel)
-ax2.legend(tlabel)
-ax3.legend(tlabel)
 fig1.show()
-#fig2.show()
-#fig3.show()
-#raw_input()
+raw_input()
 #fig1.savefig("IsothermNProb.png")
