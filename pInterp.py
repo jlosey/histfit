@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 import glob
 import numpy as np
-<<<<<<< HEAD
-from scipy.interpolate import RectBivariateSpline as rbs 
-=======
 from scipy.interpolate import interp2d
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 from scipy.interpolate import griddata 
 import matplotlib.pylab as plt
 import sys
@@ -15,11 +11,7 @@ if len(sys.argv) > 1:
 else:
 	threshold = 4
 dataL = []
-<<<<<<< HEAD
 dlist = ["0.02","0.05","0.10","0.15","0.20","0.25","0.30","0.316","0.35","0.40","0.45","0.50","0.55","0.60","0.65","0.70","0.75"]
-=======
-dlist = ["0.05","0.10","0.15","0.20","0.25","0.30","0.316","0.35","0.40","0.45","0.50","0.55","0.60","0.65","0.70","0.75"]
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 for d in dlist:
 	flist = sorted(glob.glob("../v5/gClst_0-0-*-{0}-500000.dat".format(d)))
 	#Loop through files in flist
@@ -47,36 +39,26 @@ for d in dlist:
 		dataC = np.asarray(pClst)
 		dataSL = dataS[threshold:]
 		dataCL = dataC[threshold:]
-<<<<<<< HEAD
 		avgS = np.multiply(dataS,n).sum()
 		avgCL = np.multiply(dataC,n).sum()
 		cSum = dataC.sum()
 		sLSum = dataSL.sum()
 		cLSum = dataCL.sum()
 		dataL.append((dens,temp,sLSum,cLSum,avgS,avgCL))
-=======
-		cSum = dataC.sum()
-		sLSum = dataSL.sum()
-		cLSum = dataCL.sum()
-		dataL.append((dens,temp,sLSum,cLSum,cSum))
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 #Convert data list into numpy array
 dataL = np.asarray(dataL)
 ind = np.lexsort((dataL[:,0],dataL[:,1]))
 dataL = dataL[ind]
 points = (dataL[:,0],dataL[:,1])
 #print dataL
-dG = np.linspace(0.05,0.7,100)
-tG = np.linspace(0.5,4.0,100)
+dG = np.linspace(0.05,0.7,400)
+tG = np.linspace(0.6,1.4,400)
 D,T = np.meshgrid(dG,tG)
 #Interpolate data
 sClst = griddata(points,dataL[:,2],(D,T),method="linear")
 gClst = griddata(points,dataL[:,3],(D,T),method="linear")
-<<<<<<< HEAD
 gAvgS = griddata(points,dataL[:,4],(D,T),method="linear")
 gAvgCl = griddata(points,dataL[:,5],(D,T),method="linear")
-=======
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 #iClst = interp2d(dataL[:,0],dataL[:,1],dataL[:,3],kind="linear")
 #I = iClst(tG,dG)
 #print I
@@ -94,54 +76,45 @@ for line in ljf.readlines():
 	rvLJ.append(float(lis[1]))
 	rlLJ.append(float(lis[2]))
 ljf.close()
-cLevels = [0.1,0.2,0.4,0.6,0.8,0.95]
-<<<<<<< HEAD
-avgLevels = [2,4,6,8,9]
+cLevels = [0.2,0.4,0.6,0.8,0.95]
+avgLevels = [1,4,6,9]
 
 plt.figure(1,figsize=(9.5,11))
 plt.subplot(222)
-=======
-plt.figure(1,figsize=(10.5,6.5))
-plt.subplot(122)
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 CS1 = plt.contour(D,T,gClst,levels=cLevels)
 plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
 plt.clabel(CS1,inline=1,fmt="%1.2f")
 plt.title("Dense Neighbours\nP[N>{0}], Interpolated".format(threshold))
 plt.ylabel("T*")
 plt.xlabel(r'$\rho$*')
-<<<<<<< HEAD
+plt.ylim(0.6,1.4)
 
 plt.subplot(221)
-=======
-plt.subplot(121)
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 CS2 = plt.contour(D,T,sClst,levels=cLevels)
 plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
 plt.clabel(CS2,inline=1,fmt="%1.2f")
 plt.title("Stillinger\nP[N>{0}], Interpolated".format(threshold))
 plt.ylabel("T*")
 plt.xlabel(r'$\rho$*')
-<<<<<<< HEAD
+plt.ylim(0.6,1.4)
 
 plt.subplot(223)
-CS2 = plt.contour(D,T,gAvgS,levels=avgLevels)
+CS3 = plt.contour(D,T,gAvgS,levels=avgLevels)
 plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
-plt.clabel(CS2,inline=1,fmt="%d")
-plt.title("Stillinger\n<N>, Interpolated".format(threshold))
+plt.clabel(CS3,inline=1,fmt="%d")
+plt.title("<N>, Interpolated".format(threshold))
 plt.ylabel("T*")
 plt.xlabel(r'$\rho$*')
+plt.ylim(0.6,1.4)
 
 plt.subplot(224)
-CS2 = plt.contour(D,T,gAvgCl,levels=avgLevels)
+CS4 = plt.contour(D,T,gAvgCl,levels=avgLevels)
 plt.plot(rvLJ,tLJ,"-g",rlLJ,tLJ,"-k")
-plt.clabel(CS2,inline=1,fmt="%d")
-plt.title("Dense Neighbours\n<N>, Interpolated".format(threshold))
+plt.clabel(CS4,inline=1,fmt="%d")
+plt.title("<N>, Interpolated".format(threshold))
 plt.ylabel("T*")
 plt.xlabel(r'$\rho$*')
+plt.ylim(0.6,1.4)
 plt.tight_layout()
 #plt.savefig("TRhoContour.png")
-=======
-plt.tight_layout()
->>>>>>> 63ccdc9b85a84581e6212b06f499abe90c0e337a
 plt.show()
