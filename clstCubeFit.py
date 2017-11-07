@@ -83,7 +83,7 @@ for d,c,a in zip(dlist,clist,alabel):
 	#n = 8
 	fitC,resid,rank,vdm,rcond = np.polyfit(cCLsort[ti:],tLsort[ti:],3,full=True)
 	p = np.poly1d(fitC)
-	print p,resid
+	print p,resid/len(cCLsort[ti:])
 	#print tLsort[n:]
 	pdCmplx = p.deriv().r
 	pdReal = pdCmplx.real
@@ -102,6 +102,8 @@ for d,c,a in zip(dlist,clist,alabel):
 	ax = fig1.add_subplot(1,1,1)
 	ax.set_xlim([0,1])
 	ax.set_ylim([0,4.5])
+	ax.set_ylabel("T*")
+	ax.set_xlabel("P[n>{0}]".format(threshold))
 	ax.plot(cCL,tempL,".",pline,p(pline),"--",pline[idx],p(pline[idx]),color=c,lw=0.6)
 	#ax.plot(cCL,tempL,".",pline,p(pline),pline[idx],p(pline[idx]),"*k",pline[idx2],p(pline[idx2]),"s",ms=10)
 	ax.plot(pdReal[0],p(pdReal[0]),"^",pd2Real[0],p(pd2Real[0]),"*",color=c,ms=8)
