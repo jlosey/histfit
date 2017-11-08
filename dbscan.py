@@ -8,16 +8,24 @@ from mpl_toolkits.mplot3d import Axes3D
 
 def readCoor(fname):
     """Read in coordinate data for clustering."""
-    cols = [] 
+    frame = []
+    sim = []
+    count = 0
     f = open(fname,'r')
     for line in f:
- 	    li=line.strip()
-	    if not li.startswith("i") and not li.startswith("Step"):
-		    x = li.split()
-		    cols.append([float(x[1]),float(x[2]),float(x[3])])
-
+        li=line.strip()
+        if not li.startswith("i") and not li.startswith("Step"):
+            xi = li.split()
+            if int(xi[0]) == 0 and count>2:
+                sim.append(frame)
+                frame = []
+            frame.append([float(xi[1]),float(xi[2]),float(xi[3])])
+            #print sim
+        else:
+            count = count+1
+            continue
     f.close()
-    coord = np.asarray(cols)
+    coord = np.asarray(sim)
     return coord
 
 def findcenters(c0,lab):
@@ -57,8 +65,8 @@ def plotClstrFrame(cFr,lab,cen):
     #for d in range(3):
     for n in range(nClst):
         indi = np.where(lab == n)
-        ax.scatter(cFr[indi,0], cFr[indi, 1], cFr[indi, 2], s=200)
-    ax.scatter(cen[0],cen[1],cen[2], c="orange", s=200)
+        ax.scatter(cFr[indi,0], cFr[indi, 1], cFr[indi, 2], c="red",s=50)
+    ax.scatter(cen[0],cen[1],cen[2], c="cyan", s=200)
     plt.show()
 
 #Run DBSCAN clustering algorithm for first dump
@@ -73,10 +81,13 @@ def plotClstrFrame(cFr,lab,cen):
 #		scr.append([n,scoreS, scoreCH])
 #scr = np.asarray(scr)
 #print(scr)
-co = readCoor('../v4/gCoor_0-0-1.40-0.10-25000.dat')
+co = readCoor('../v5/gCoor_0-0-1.20-0.60-500000.dat')
+#co = readCoor('../v5/gCoor_0-0-1.00-0.20-500000.dat')
 cNumFr = []
-for fr in range(0,4500,300):
-    coordFr = co[fr:fr+300]
+cNumCore = []
+notClstr = []
+for fr in range(0,len(co)):
+    coordFr = co[fr]
     #print coord[1000]
     neighb = []
 
@@ -85,21 +96,28 @@ for fr in range(0,4500,300):
     labels = dbscan.labels_
     cavg = findcenters(coordFr,labels)
     num = numClstr(labels)
+    numCore = numClstr(core)
     cNumFr.append(len(num)-1)
-    print num,len(num)-1
-print cNumFr
-print np.mean(cNumFr),np.std(cNumFr)
-h,b = np.histogram(cNumFr,bins=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
-center = (b[:-1] + b[1:])/2
-print h
+    cNumCore.append(len(numCore)-1)
+    notClstr.append(num[0][1])
+    #print fr,num,len(num)-1,numCore,len(numCore)-1
+print "Cluster and not",cNumFr,notClstr
+#print "Labels",labels,cNot
+#print np.mean(cNumFr),np.std(cNumFr),np.mean(notClstr),np.std(notClstr)
+h1,b1 = np.histogram(cNumFr)
+h2,b2 = np.histogram(notClstr)
+center = (b1[:-1] + b1[1:])/2
+#print h1,h2
 #plt.bar(center,h,align='center',width=1)
-plt.hist(cNumFr,bins=b)
+plt.hist(cNumFr,bins=b1)
+plt.show()
+plt.hist(notClstr,bins=b2)
 plt.show()
 #coordFr = coordFr
 #score = DBSCAN(n_clusters=200, random_state=0).score(coord[:])
 #print(kmeans.cluster_centers_)
 #print(kmeans2.cluster_centers_)
 #Plot figure of clusters
-#plotClstrFrame(coordFr,labels,cavg)
+plotClstrFrame(coordFr,labels,cavg)
 #print labels
 
