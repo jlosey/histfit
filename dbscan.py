@@ -1,10 +1,17 @@
 #!/usr/bin/env python
+from math import sqrt
 import numpy as np
+import glob,sys
 from sklearn import metrics
 from sklearn.cluster import DBSCAN 
-from sklearn.neighbors import NearestNeighbors
+#from sklearn.neighbors import NearestNeighbors
+from scipy.spatial import cKDTree
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+def getFiles(tlist):
+    flist = sorted(glob.glob("../v5/gCoor_0-0-{0}-*-500000.dat".format(tlist)))
+    return flist
 
 def readCoor(fname):
     """Read in coordinate data for clustering."""
@@ -51,8 +58,11 @@ def numClstr(label):
     n = len(np.unique(label))-1
     c = []
     for n in range(-1,n):
-	    c.append([n, sum(1 for x in label if x==n)])
+        c.append([n, sum(1 for x in label if x==n)])
     return c
+
+def numOut(label):
+    return sum(1 for x in label if x == -1)
 
 def plotClstrFrame(cFr,lab,cen):
     """Plot single frame of clusters."""
@@ -81,43 +91,49 @@ def plotClstrFrame(cFr,lab,cen):
 #		scr.append([n,scoreS, scoreCH])
 #scr = np.asarray(scr)
 #print(scr)
-co = readCoor('../v5/gCoor_0-0-1.20-0.60-500000.dat')
-#co = readCoor('../v5/gCoor_0-0-1.00-0.20-500000.dat')
-cNumFr = []
-cNumCore = []
-notClstr = []
-for fr in range(0,len(co)):
-    coordFr = co[fr]
-    #print coord[1000]
-    neighb = []
-
-    dbscan = DBSCAN(eps=1.5,min_samples=5).fit(coordFr)
-    core = dbscan.core_sample_indices_
-    labels = dbscan.labels_
-    cavg = findcenters(coordFr,labels)
-    num = numClstr(labels)
-    numCore = numClstr(core)
-    cNumFr.append(len(num)-1)
-    cNumCore.append(len(numCore)-1)
-    notClstr.append(num[0][1])
-    #print fr,num,len(num)-1,numCore,len(numCore)-1
-print "Cluster and not",cNumFr,notClstr
-#print "Labels",labels,cNot
-#print np.mean(cNumFr),np.std(cNumFr),np.mean(notClstr),np.std(notClstr)
-h1,b1 = np.histogram(cNumFr)
-h2,b2 = np.histogram(notClstr)
-center = (b1[:-1] + b1[1:])/2
-#print h1,h2
-#plt.bar(center,h,align='center',width=1)
-plt.hist(cNumFr,bins=b1)
-plt.show()
-plt.hist(notClstr,bins=b2)
-plt.show()
-#coordFr = coordFr
-#score = DBSCAN(n_clusters=200, random_state=0).score(coord[:])
-#print(kmeans.cluster_centers_)
-#print(kmeans2.cluster_centers_)
-#Plot figure of clusters
-plotClstrFrame(coordFr,labels,cavg)
-#print labels
+temp = ["0.90","1.00"]
+for tm in temp:
+    fl = getFiles(tm)
+    print fl
+    data = []
+    for f in fl:
+        #split name and record density and temperature
+        fs = f.split("-")
+        tempf = float(fs[2])
+        densf = float(fs[3])
+        #Read Coordinate data from file
+        co = readCoor(f)
+        nAtom = len(co[0])
+        nFr = len(co)
+        cNumFr = []
+        cNumCore = []
+        notClstr = []
+        nCore = []
+        nLabels = []
+        #Loop over all frames, run dbscan, and record cluster info for frame
+        for fr in range(0,len(co),10):
+            coordFr = co[fr]
+            dbscan = DBSCAN(eps=1.5,min_samples=5).fit(coordFr)
+            core = dbscan.core_sample_indices_
+            nCore.append(sum(1 for c in core if c > -1))
+            labels = dbscan.labels_
+            nLabels.append(sum(1 for l in labels if l > -1))
+            #cavg = findcenters(coordFr,labels)
+            num = numClstr(labels)
+            numCore = numClstr(core)
+            cNumFr.append(len(num)-1)
+            cNumCore.append(len(numCore)-1)
+            nOut = numOut(labels)
+            notClstr.append(nOut)
+            #print fr,num,len(num)-1,numCore,len(numCore)-1
+        notClstrP = [float(n)/float(nAtom) for n in notClstr]
+        #print nCore
+        data.append([tempf,densf,np.mean(nCore),np.std(nCore,dtype=np.float32)/sqrt(len(co))])
+        #plt.hist(cNumFr,bins=range(13),normed=1)
+        #plt.show()
+    print data
+    #plt.hist(notClstr,bins=range(800,950,10),normed=1)
+    #plt.show()
+    #Plot figure of clusters
+    #plotClstrFrame(coordFr,labels,cavg)
 
