@@ -2,7 +2,7 @@
 from math import sqrt
 import numpy as np
 import glob,sys
-from sklearn import metrics
+#from sklearn import metrics
 from sklearn.cluster import DBSCAN 
 #from sklearn.neighbors import NearestNeighbors
 from scipy.spatial import cKDTree
@@ -12,6 +12,15 @@ from mpl_toolkits.mplot3d import Axes3D
 def getFiles(tlist):
     flist = sorted(glob.glob("../v5/gCoor_0-0-{0}-*-500000.dat".format(tlist)))
     return flist
+
+def boxDim(n,den):
+    """Calculate the box length from density and num particles"""
+    l = (n/den)**(1./3.)
+    return l
+
+def shiftCoord(c,bl):
+    """Shift coordinates by box length so all are positive."""
+    return [[i + bl/2. for i in ci] for ci in c]
 
 def readCoor(fname):
     """Read in coordinate data for clustering."""
@@ -91,13 +100,13 @@ def plotClstrFrame(cFr,lab,cen):
 #		scr.append([n,scoreS, scoreCH])
 #scr = np.asarray(scr)
 #print(scr)
-temp = ["0.90","1.00"]
+temp = ["1.00"]
 for tm in temp:
     fl = getFiles(tm)
-    print fl
     data = []
     for f in fl:
         #split name and record density and temperature
+        print f
         fs = f.split("-")
         tempf = float(fs[2])
         densf = float(fs[3])
@@ -105,6 +114,7 @@ for tm in temp:
         co = readCoor(f)
         nAtom = len(co[0])
         nFr = len(co)
+        blen = boxDim(nAtom,densf)
         cNumFr = []
         cNumCore = []
         notClstr = []
@@ -113,10 +123,16 @@ for tm in temp:
         #Loop over all frames, run dbscan, and record cluster info for frame
         for fr in range(0,len(co),10):
             coordFr = co[fr]
-            dbscan = DBSCAN(eps=1.5,min_samples=5).fit(coordFr)
+            cShift = shiftCoord(coordFr,blen)
+            tree = cKDTree(cShift,boxsize=blen)
+            sdm = tree.sparse_distance_matrix(tree,50.,output_type="dok_matrix")
+            #dbscan = DBSCAN(eps=1.5,min_samples=5).fit(cShift)
+            #core = dbscan.core_sample_indices_
+            #labels = dbscan.labels_
+            dbscan = DBSCAN(eps=1.5,min_samples=5,metric="precomputed").fit(sdm)
             core = dbscan.core_sample_indices_
-            nCore.append(sum(1 for c in core if c > -1))
             labels = dbscan.labels_
+            nCore.append(sum(1 for c in core if c > -1))
             nLabels.append(sum(1 for l in labels if l > -1))
             #cavg = findcenters(coordFr,labels)
             num = numClstr(labels)
@@ -131,7 +147,7 @@ for tm in temp:
         data.append([tempf,densf,np.mean(nCore),np.std(nCore,dtype=np.float32)/sqrt(len(co))])
         #plt.hist(cNumFr,bins=range(13),normed=1)
         #plt.show()
-    print data
+    np.savetxt("cluster.out",data,delimiter=",",fmt="%.5f")
     #plt.hist(notClstr,bins=range(800,950,10),normed=1)
     #plt.show()
     #Plot figure of clusters
